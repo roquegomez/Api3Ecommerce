@@ -31,7 +31,7 @@ class MainActivity : AppCompatActivity() {
         obtenerProductos()
     }
 
-    private fun obtenerProductos(){
+    private fun obtenerProductos() {
         var listado = findViewById<LinearLayout>(R.id.productContainer)
 
         val client = Retrofit.Builder()
@@ -39,21 +39,24 @@ class MainActivity : AppCompatActivity() {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
         try {
-            val service =  client.create(ProductService::class.java)
-            val call = service.getProducts( )
-            call.enqueue(object : Callback<ProductResponse>{
+            val service = client.create(ProductService::class.java)
+            val call = service.getProducts()
+            call.enqueue(object : Callback<ProductResponse> {
                 override fun onResponse(
                     call: Call<ProductResponse>,
                     response: Response<ProductResponse>
                 ) {
 
-                    if(response.isSuccessful){
+                    if (response.isSuccessful) {
                         val products = response.body()?.products
                         products?.forEach { product ->
 
                             listado.addView(crearProductoView(product))
 
-                            Log.d("MainActivity", "Producto: ${product.name} precio: ${product.price}")
+                            Log.d(
+                                "MainActivity",
+                                "Producto: ${product.name} precio: ${product.price}"
+                            )
                         }
                     } else {
                         Log.d("MainActivity", "API error ${response.code()}")
@@ -69,6 +72,16 @@ class MainActivity : AppCompatActivity() {
             })
         } catch (e: Exception) {
             println("Error al realizar la solicitud: ${e.message}")
+        }
+    }
+
+    fun obtenerListadoProductos(productos: List<Product>): String {
+        return if (productos.isNotEmpty()) {
+            productos.joinToString(separator = "\n") { producto ->
+                "ID: ${producto.id}, Nombre: ${producto.name}"
+            }
+        } else {
+            "No hay productos disponibles"
         }
     }
 
